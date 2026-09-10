@@ -5,4 +5,5 @@ export const COLORS = {
   text: '#1A1A1A',
   border: '#F0F0F0',
   inactive: '#CDCDE0',
+   accent: "#FF4C3B",
 }
