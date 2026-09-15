@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { Product } from '@/assets/constants/types'
+import { Product } from '@/constants/types'
 import { dummyProducts } from '@/assets/assets'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Header from '../../components/Header'

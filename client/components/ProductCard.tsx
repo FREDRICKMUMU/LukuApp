@@ -1,9 +1,9 @@
 import { View, Text, TouchableOpacity, Image } from 'react-native' 
 import React from 'react'
-import { ProductCardProps } from '../constants/types'
 import { Link } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
-import { COLORS } from '../constants'
+import { ProductCardProps } from '@/constants/types'
+import { COLORS } from '@/constants'
 import { useWishlist } from '../context/WishlistContext'
 
 export default function ProductCard({ product }: ProductCardProps) {
@@ -31,10 +31,11 @@ export default function ProductCard({ product }: ProductCardProps) {
           {/* Favourite Icon */}
           <TouchableOpacity 
             className='absolute top-2 right-2 z-10 p-2 bg-white rounded-full shadow-sm' 
-            onPress={(e) => {
-              e.stopPropagation();
-              toggleWishlist(product)
-            }}
+         onPress={(e) => {
+  e.stopPropagation();
+  console.log('heart tapped', product._id);
+  toggleWishlist(product);
+}}
           >
             <Ionicons 
               name={isLiked ? 'heart' : 'heart-outline'} 

@@ -1,8 +1,8 @@
 import { View, Text, Image, TouchableOpacity } from 'react-native'
 import React from 'react'
-import { CartItemProps } from '../constants/types'
+import { CartItemProps } from '@/constants/types'
 import { Ionicons } from '@expo/vector-icons'
-import { COLORS } from '../constants'
+import { COLORS } from '@/constants'
 
 export default function CartItem({item, onRemove, onUpdateQuantity}: CartItemProps) {
 

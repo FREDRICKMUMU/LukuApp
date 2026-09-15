@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useCart } from '../../../context/CartContext';
 import { useWishlist } from '../../../context/WishlistContext';
 import { dummyProducts } from '@/assets/assets';
-import { Product } from '@/assets/constants/types';
+import { Product } from '@/constants/types';
 import { COLORS } from '@/constants';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
