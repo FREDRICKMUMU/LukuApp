@@ -23,7 +23,6 @@
       "output": "static",
       "favicon": "./assets/images/favicon.png",
       "bundler": "metro"
-
     },
     "plugins": [
       "expo-router",
@@ -34,7 +33,9 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
-      ]
+      ],
+      "@clerk/expo",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,
