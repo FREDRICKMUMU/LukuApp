@@ -1,13 +1,7 @@
 import axios from "axios"
-import {Platform} from "react-native";
 
 
-const LOCAL_API_URL = Platform.select({
-    android:"http://192.168.0.102:3000/api",
-    ios: "http://192.168.0.102:3000/api",
-    default: " http://localhost:3000/api"
-})
 
-const api = axios.create({baseURL: LOCAL_API_URL})
+const api = axios.create({baseURL: "https://server-swart-rho.vercel.app/api"})
 
 export default api;
