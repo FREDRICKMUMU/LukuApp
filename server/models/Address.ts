@@ -5,7 +5,7 @@ export interface IAddress extends Document {
     type: "Home" | "Work" | "Other";
     street: string;
     city: string;
-    state: string;
+    state: string;              // ✅ lowercase
     zipCode: string;
     country: string;
     isDefault: boolean;
@@ -15,15 +15,18 @@ export interface IAddress extends Document {
 const AddressSchema = new mongoose.Schema<IAddress>({
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     type: {
-        type: String, required: true, enum: ["Home", "Work", "Other"], default: "Home"
+        type: String,
+        required: true,
+        enum: ["Home", "Work", "Other"],
+        default: "Home",
     },
     street: { type: String, required: true },
     city: { type: String, required: true },
-    state: { type: String, required: true },
+    state: { type: String, required: true },  
     zipCode: { type: String, required: true },
     country: { type: String, required: true },
     isDefault: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
-})
+});
 
-export default mongoose.model<IAddress>("Address", AddressSchema)
+export default mongoose.model<IAddress>("Address", AddressSchema);

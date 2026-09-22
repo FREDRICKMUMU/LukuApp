@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react'
 import { useCart } from '../../context/CartContext'
 import { useRouter } from 'expo-router'
 import { Address } from '@/constants/types'
-import { dummyAddress } from '@/assets/assets'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { COLORS } from '@/constants'
 import Header from '../../components/Header'
@@ -23,7 +22,7 @@ export default function Checkout() {
     const [loading, setLoading] = useState(false)
     const [pageLoading, setPageLoading] = useState(true)
 
-    const [selectedAddress, setSelectAddress] = useState<Address | null>(null)
+    const [selectedAddress, setSelectedAddress] = useState<Address | null>(null)
     const [paymentMethod, setPaymentMethod] = useState<"cash" | "pesapal">('cash')
 
     const shipping = 2.0
@@ -42,7 +41,7 @@ export default function Checkout() {
             const def = addrList.find((a: Address)=> a.
             isDefault
         ) || addrList[0]
-        setSelectAddress(def)
+        setSelectedAddress(def)
         }
      } catch (error) {
         console.error("Error fetching checkout data:",
@@ -97,7 +96,7 @@ export default function Checkout() {
         if(data.success){
             await clearCart()
             Toast.show({
-                type: "Success",
+                type: "success",
                 text1: "Order Placed",
                 text2: "Your order has been placed successfully!",
             })

@@ -114,7 +114,7 @@ export default function AdminOrders() {
                                     {order.shippingAddress?.street}, {order.shippingAddress?.city}
                                 </Text>
                                 <Text className="text-primary text-xs">
-                                    {order.shippingAddress?.state}, {order.shippingAddress?.zipCode}, {order.shippingAddress?.country}
+                                    {order.shippingAddress?.State}, {order.shippingAddress?.zipCode}, {order.shippingAddress?.country}
                                 </Text>
                             </View>
 

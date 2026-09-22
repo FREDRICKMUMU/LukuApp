@@ -13,6 +13,14 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
         }
 
         const user = await User.findOne({ clerkId: userId })
+
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: "User not found in database",
+            })
+        }
+
         req.user = user;
         next()
     } catch (error: any) {
@@ -26,6 +34,8 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
 
 export const authorize = (...roles: string[]) => {
     return (req: Request, res: Response, next: NextFunction) => {
+    console.log("DEBUG authorize check:", { userRole: req.user?.role, requiredRoles: roles, userExists: !!req.user });
+
         if (!roles.includes(req.user.role)) {
             return res.status(403).json({
                 success: false,
