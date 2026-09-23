@@ -3,13 +3,13 @@ import React, { useEffect, useState } from 'react'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useCart } from '../../../context/CartContext';
 import { useWishlist } from '../../../context/WishlistContext';
-import { dummyProducts } from '@/assets/assets';
 import { Product } from '@/constants/types';
 import { COLORS } from '@/constants';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
+import api from '@/constants/api';
 
 const {width} = Dimensions.get('window')
 
@@ -27,9 +27,19 @@ export default function ProductDetails() {
     const [activeImageIndex, setActiveImageIndex] = useState(0)
 
     const fetchProduct = async () => {
-       const found: any = dummyProducts.find((product)=> product._id === id);
-       setProduct(found ?? null);
+      try {
+        const {data} = await api.get(`/products/${id}`);
+        setProduct(data.data)
+      } catch (error: any) {
+        Toast.show({
+          type: 'error',
+          text1: 'Failed to fetch product',
+          text2: error.response?.data?.msessage || 
+          "Something went wrong"
+        })
+      } finally {
         setLoading(false)
+      }
     }
 
     useEffect(()=>{

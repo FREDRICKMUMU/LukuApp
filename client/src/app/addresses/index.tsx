@@ -1,18 +1,22 @@
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View, Modal, TextInput, ActivityIndicator } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View, Modal, TextInput, ActivityIndicator, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from '../../../components/Header'
 import { COLORS } from "@/constants";
-import type { Address } from '../../../constants/types'
-import { dummyAddress } from "@/assets/assets";
+import type { Address } from '@/constants/types'
+import { useAuth } from "@clerk/expo";
+import api from "@/constants/api";
+import Toast from "react-native-toast-message";
 
 export default function Addresses() {
+
+    const { getToken } = useAuth()
+
     const [addresses, setAddresses] = useState<Address[]>([]);
     const [loading, setLoading] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
 
-    // Form state
     const [type, setType] = useState("Home");
     const [street, setStreet] = useState("");
     const [city, setCity] = useState("");
@@ -22,7 +26,6 @@ export default function Addresses() {
     const [isDefault, setIsDefault] = useState(false);
     const [submitting, setSubmitting] = useState(false);
 
-    // Edit state
     const [isEditing, setIsEditing] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -31,8 +34,21 @@ export default function Addresses() {
     }, []);
 
     const fetchAddresses = async () => {
-        setAddresses(dummyAddress as any);
-        setLoading(false);
+        try {
+            const token = await getToken();
+            const { data } = await api.get('/addresses', {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+            setAddresses(data.data)
+        } catch (error: any) {
+            Toast.show({
+                type: 'error',
+                text1: 'Failed to fetch Addresses',
+                text2: error.response?.data?.message || "Something went wrong"
+            })
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleEditSearch = (item: Address) => {
@@ -49,13 +65,67 @@ export default function Addresses() {
     };
 
     const handleSaveAddress = async () => {
-        setModalVisible(false);
-        resetForm();
-        fetchAddresses();
+        if (!street || !city || !state || !zipCode || !country) {
+            Toast.show({
+                type: 'error',
+                text1: 'Missing Fields',
+                text2: 'Please fill in all fields'
+            });
+            return;
+        }
+        setSubmitting(true)
+        try {
+            const token = await getToken();
+            const data = { type, street, city, state, zipCode, country, isDefault }
+
+            if (isEditing && editingId) {
+                await api.put(`/addresses/${editingId}`, data,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                )
+            } else {
+                await api.post("/addresses", data, {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+            }
+            setModalVisible(false)
+            resetForm()
+            fetchAddresses()
+        } catch (error: any) {
+            Toast.show({
+                type: 'error',
+                text1: 'Failed to save address',
+                text2: error.response?.data?.message ||
+                    "Something went wrong"
+            });
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     const handleDeleteAddress = async (id: string) => {
-
+        Alert.alert("Delete Address", "Are you sure you want to delete this address ?", [
+            { text: "Cancel", style: "cancel" },
+            {
+                text: "Delete",
+                style: "destructive",
+                onPress: async () => {
+                    try {
+                        const token = await getToken();
+                        await api.delete(`/addresses/${id}`,
+                            { headers: { Authorization: `Bearer ${token}` } }
+                        )
+                        fetchAddresses()
+                    } catch (error: any) {
+                        Toast.show({
+                            type: 'error',
+                            text1: 'Failed to save address',
+                            text2: error.response?.data?.message ||
+                                "Something went wrong"
+                        })
+                    }
+                }
+            }
+        ])
     };
 
     const resetForm = () => {
@@ -127,7 +197,6 @@ export default function Addresses() {
                 </ScrollView>
             )}
 
-            {/* Add Address Modal */}
             <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
                 <View className="flex-1 justify-end bg-black/50">
                     <View className="bg-white rounded-t-3xl p-6 h-[85%]">
@@ -154,22 +223,22 @@ export default function Addresses() {
                             <View className="flex-row gap-4 mb-4">
                                 <View className="flex-1">
                                     <Text className="text-primary font-medium mb-2">City</Text>
-                                    <TextInput className="bg-surface p-4 rounded-xl text-primary" placeholder="New York" value={city} onChangeText={setCity} />
+                                    <TextInput className="bg-surface p-4 rounded-xl text-primary" placeholder="Nairobi" value={city} onChangeText={setCity} />
                                 </View>
                                 <View className="flex-1">
-                                    <Text className="text-primary font-medium mb-2">State</Text>
-                                    <TextInput className="bg-surface p-4 rounded-xl text-primary" placeholder="NY" value={state} onChangeText={setState} />
+                                    <Text className="text-primary font-medium mb-2">County</Text>
+                                    <TextInput className="bg-surface p-4 rounded-xl text-primary" placeholder="MSA" value={state} onChangeText={setState} />
                                 </View>
                             </View>
 
                             <View className="flex-row gap-4 mb-4">
                                 <View className="flex-1">
-                                    <Text className="text-primary font-medium mb-2">Zip Code</Text>
+                                    <Text className="text-primary font-medium mb-2">Postal Code</Text>
                                     <TextInput className="bg-surface p-4 rounded-xl text-primary" placeholder="10001" value={zipCode} onChangeText={setZipCode} keyboardType="numeric" />
                                 </View>
                                 <View className="flex-1">
                                     <Text className="text-primary font-medium mb-2">Country</Text>
-                                    <TextInput className="bg-surface p-4 rounded-xl text-primary" placeholder="USA" value={country} onChangeText={setCountry} />
+                                    <TextInput className="bg-surface p-4 rounded-xl text-primary" placeholder="KENYA" value={country} onChangeText={setCountry} />
                                 </View>
                             </View>
 

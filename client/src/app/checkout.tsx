@@ -3,23 +3,26 @@ import React, { useEffect, useState } from 'react'
 import { useCart } from '../../context/CartContext'
 import { useRouter } from 'expo-router'
 import { Address } from '@/constants/types'
-import { dummyAddress } from '@/assets/assets'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { COLORS } from '@/constants'
 import Header from '../../components/Header'
 import { ScrollView } from 'react-native-gesture-handler'
 import { Ionicons } from '@expo/vector-icons'
 import Toast from 'react-native-toast-message'
+import { useAuth } from '@clerk/expo'
+import api from '@/constants/api'
 
 export default function Checkout() {
 
-    const { cartTotal } = useCart()
+    const {getToken} = useAuth()
+
+    const { cartTotal,clearCart} = useCart()
     const router = useRouter()
 
     const [loading, setLoading] = useState(false)
     const [pageLoading, setPageLoading] = useState(true)
 
-    const [selectedAddress, setSelectAddress] = useState<Address | null>(null)
+    const [selectedAddress, setSelectedAddress] = useState<Address | null>(null)
     const [paymentMethod, setPaymentMethod] = useState<"cash" | "pesapal">('cash')
 
     const shipping = 2.0
@@ -27,12 +30,31 @@ export default function Checkout() {
     const total = cartTotal + shipping + tax
 
     const fetchAddress = async () => {
-        const addrList = dummyAddress
-        if (addrList.length > 0) {
-            const def = addrList.find((a: any) => a.isDefault) || addrList[0]
-            setSelectAddress(def as Address)
+     try {
+        const token = await getToken();
+        const {data} = await api.get('/addresses', {
+            headers: {Authorization: `Bearer ${token}`}
+        })
+        const addrList = data.data;
+        if(addrList.length > 0){
+            //Find default or first
+            const def = addrList.find((a: Address)=> a.
+            isDefault
+        ) || addrList[0]
+        setSelectedAddress(def)
         }
-        setPageLoading(false)
+     } catch (error) {
+        console.error("Error fetching checkout data:",
+            error
+        );
+        Toast.show({
+            type: "error",
+            text1:"Error",
+            text2:"Failed to load checkout information",
+        })
+     }finally{
+        setPageLoading(false);
+     }
     }
 
     const handlePlaceOrder = async () => {
@@ -55,7 +77,43 @@ export default function Checkout() {
         }
 
         // Cash on delivery
-        router.replace('/orders')
+       setLoading(true);
+       try {
+        const payload = {
+            shippingAddress: selectedAddress,
+            notes:"Placed via App",
+            paymentMethod: "cash",
+
+        }
+
+        const token = await getToken()
+        const {data} = await api.post("/orders", payload, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        })
+
+        if(data.success){
+            await clearCart()
+            Toast.show({
+                type: "success",
+                text1: "Order Placed",
+                text2: "Your order has been placed successfully!",
+            })
+            router.replace("/orders")
+        }
+
+       } catch (error: any) {
+        console.log(error);
+        Toast.show({
+              type: "error",
+                text1: "Failed to place Order",
+                text2: error.response?.data?.message ||
+                "Something went wrong",
+        });
+       }finally{
+        setLoading(false);
+       }
     }
 
     useEffect(() => {

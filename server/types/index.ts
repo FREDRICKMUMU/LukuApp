@@ -5,7 +5,7 @@ export interface IAddress extends Document {
     type: "Home" | "Work" | "Other";
     street: string;
     city: string;
-    state: string;
+    State: string;
     zipCode: string;
     country: string;
     isDefault: boolean;
@@ -43,11 +43,11 @@ export interface IOrder extends Document {
     shippingAddress: {
         street: string;
         city: string;
-        state: string;
+        State: string;
         zipCode: string;
         country: string;
     };
-    paymentMethod: "cash" | "stripe";
+    paymentMethod: "cash" | "pesapal";
     paymentStatus: "pending" | "paid" | "failed" | "refunded";
     paymentIntentId?: string;
     orderStatus: "placed" | "processing" | "shipped" | "delivered" | "cancelled";
@@ -94,4 +94,5 @@ export interface IWishlist extends Document {
     user: Types.ObjectId;
     products: Types.ObjectId[];
     createdAt: Date;
+    updatedAt: Date;
 }

@@ -11,7 +11,7 @@ export default function AddProduct() {
     const [submitting, setSubmitting] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
 
-    // Form state
+    // Form State
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [price, setPrice] = useState("");
